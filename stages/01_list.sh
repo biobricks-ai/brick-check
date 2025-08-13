@@ -12,7 +12,7 @@ mkdir -p "list"
 OWNER="biobricks-ai"
 
 # Get list of repos as owner/name lines
-repos=$(gh repo list "$OWNER" --limit "1000" --json name,owner --jq '.[] | "\(.owner.login)/\(.name)"')
+repos=$(gh repo list "$OWNER" --public --limit "1000" --json name,owner --jq '.[] | "\(.owner.login)/\(.name)"')
 
 # For each repo, check if root-level dvc.lock exists using the contents API
 export TMPFILE

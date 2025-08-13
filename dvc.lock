@@ -5,11 +5,11 @@ stages:
     deps:
     - path: stages/01_list.sh
       hash: md5
-      md5: 286db8f4df755be8aad283661f68a933
-      size: 713
+      md5: 6812f95b988abca3e40ddd2da0e20945
+      size: 722
       isexec: true
     outs:
     - path: list/list.txt
       hash: md5
-      md5: 7362902be1cf8085abf8f35adbc4264e
-      size: 2866
+      md5: 87ef2e3a92c73931bb659aece0df13e9
+      size: 2285
