@@ -1,2 +1,15 @@
 schema: '2.0'
-stages: {}
+stages:
+  list:
+    cmd: source stages/01_list.sh
+    deps:
+    - path: stages/01_list.sh
+      hash: md5
+      md5: 286db8f4df755be8aad283661f68a933
+      size: 713
+      isexec: true
+    outs:
+    - path: list/list.txt
+      hash: md5
+      md5: 7362902be1cf8085abf8f35adbc4264e
+      size: 2866

@@ -9,27 +9,9 @@
 # dvc repro <stage>
 
 stages:
-  download:
-    cmd: stages/01_download.sh
+  list:
+    cmd: source stages/01_list.sh
     deps:
-      - stages/01_download.sh
+      - stages/01_list.sh
     outs:
-      - download
-      - list
-  unzip: 
-    cmd: stages/02_unzip.sh
-    deps:
-      - stages/02_unzip.sh
-      - download
-      - list
-    outs:
-      - raw
-  build: 
-    cmd: stages/03_build.sh
-    deps:
-      - stages/03_build.sh
-      - stages/csv2parquet.sh
-      - raw
-      - list
-    outs:
-      - brick
+      - list/list.txt
