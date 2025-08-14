@@ -7,8 +7,8 @@ if ! command -v biobricks &> /dev/null; then
     exit 1
 fi
 
-# Usage: ./02_install.sh [@list.txt|list/list.txt]
-FILE_ARG="${1:-list/list.txt}"
+# Usage: ./02_install.sh [@bricks.txt|list/bricks.txt]
+FILE_ARG="${1:-list/bricks.txt}"
 # Strip leading '@' if provided
 LIST_FILE="${FILE_ARG#@}"
 
