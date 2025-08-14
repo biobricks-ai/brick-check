@@ -26,10 +26,6 @@ mkdir -p fail
 grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | \
     parallel --bar --results fail/info.csv '
         line="{}"
-        repo_name="${line##*/}"
-        brick="https://github.com/biobricks-ai/$repo_name"
-        if ! biobricks install "$brick" &>> list/stdout_install.txt; then
-            echo "Install failed: $brick" >&2
-            echo "$brick" >> fail/failures.txt
-        fi
+        brick="${line##*/}"
+        biobricks install $brick
     '
