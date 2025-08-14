@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# Script to get a list of public repos within biobricks-ai with a dvc.lock
 
 if ! command -v gh &> /dev/null; then
     echo "Error: GitHub CLI (gh) is not installed" >&2
@@ -21,7 +21,7 @@ echo "$repos" | parallel --bar '
     repo="{}"
     if [ -n "$repo" ]; then
         if gh api -X GET -H "Accept: application/vnd.github.v3+json" "repos/$repo/contents/dvc.lock" >/dev/null 2>&1; then
-            echo "$repo" >> "list/list.txt"
+            echo "$repo" >> "list/bricks.txt"
         fi
     fi
 '

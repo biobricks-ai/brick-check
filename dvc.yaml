@@ -14,4 +14,10 @@ stages:
     deps:
       - stages/01_list.sh
     outs:
-      - list/list.txt
+      - list/bricks.txt
+  install:
+    cmd: source stages/02_install.sh
+    deps:
+      - stages/02_install.sh
+    outs:
+      - fail/failures.txt
