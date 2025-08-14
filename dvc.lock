@@ -5,11 +5,11 @@ stages:
     deps:
     - path: stages/01_list.sh
       hash: md5
-      md5: 6812f95b988abca3e40ddd2da0e20945
-      size: 722
+      md5: f332de45473e0a12bb7b45f34b61e9b7
+      size: 781
       isexec: true
     outs:
-    - path: list/list.txt
+    - path: list/bricks.txt
       hash: md5
-      md5: 87ef2e3a92c73931bb659aece0df13e9
+      md5: 6bdfbbee49eedba96baf97ab216daf71
       size: 2285
