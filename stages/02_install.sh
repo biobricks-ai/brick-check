@@ -18,10 +18,8 @@ if [ ! -f "$LIST_FILE" ]; then
 fi
 
 # Read each line and install
-# Create fail directory if it doesn't exist
-mkdir -p fail
-
-touch info/logs.tsv
+# Create info directory if it doesn't exist
+mkdir -p info
 
 # Use GNU parallel to install bricks with a progress bar
 # shellcheck disable=SC2016
