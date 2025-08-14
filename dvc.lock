@@ -13,3 +13,21 @@ stages:
       hash: md5
       md5: 9ff8f99668d4dd9e9d84618a11bf826c
       size: 2310
+  install:
+    cmd: source stages/02_install.sh
+    deps:
+    - path: list/bricks.txt
+      hash: md5
+      md5: 9ff8f99668d4dd9e9d84618a11bf826c
+      size: 2310
+    - path: stages/02_install.sh
+      hash: md5
+      md5: f278d29b4287e3f029674a6d2baec641
+      size: 848
+      isexec: true
+    outs:
+    - path: info
+      hash: md5
+      md5: 5d3348487ef1d426ad686dae334e9277.dir
+      size: 201
+      nfiles: 206
