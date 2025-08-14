@@ -19,5 +19,6 @@ stages:
     cmd: source stages/02_install.sh
     deps:
       - stages/02_install.sh
+      - list/bricks.txt
     outs:
       - fail/failures.txt
