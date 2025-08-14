@@ -23,12 +23,13 @@ mkdir -p fail
 
 # Use GNU parallel to install bricks with a progress bar
 # shellcheck disable=SC2016
-grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | parallel --bar '
-    line="{}"
-    repo_name="${line##*/}"
-    brick="https://github.com/biobricks-ai/$repo_name"
-    if ! biobricks install "$brick" > /dev/null 2>&1; then
-        echo "Install failed: $brick" >&2
-        echo "$brick" >> fail/failures.txt
-    fi
-'
+grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | \
+    parallel --bar --results fail/info.csv '
+        line="{}"
+        repo_name="${line##*/}"
+        brick="https://github.com/biobricks-ai/$repo_name"
+        if ! biobricks install "$brick" > /dev/null 2>&1; then
+            echo "Install failed: $brick" >&2
+            echo "$brick" >> fail/failures.txt
+        fi
+    '
