@@ -21,5 +21,4 @@ stages:
       - stages/02_install.sh
       - list/bricks.txt
     outs:
-      - info/results.csv
-      - info/logs.tsv
+      - info
