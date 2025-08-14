@@ -21,6 +21,8 @@ fi
 # Create fail directory if it doesn't exist
 mkdir -p fail
 
+touch info/logs.tsv
+
 # Use GNU parallel to install bricks with a progress bar
 # shellcheck disable=SC2016
 grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | \
