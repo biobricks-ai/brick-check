@@ -1,39 +1,11 @@
-# How to build bricks
+# brick-check Testing Pipeline
 
-1. Create a brick named `{newbrick}` from this template
+A simple test script to verify that biobricks public bricks are downloaded + working correctly
 
-```{bash}
-gh repo create biobricks-ai/{newbrick} -p biobricks-ai/brick-template --public
-gh repo clone biobricks-ai/{newbrick}
-cd newbrick
-```
+1. Lists bricks that contain a dvc.lock file and are public
+2. Installs those bricks using `biobricks install ${brick}`
+3. Verifies that they are functional:
+   a. Checks if the bricks have assets
+   b. Checks if the bricks can be loaded using Python tools
+   c. If they can be loaded, checks number of rows
 
-2. Edit stages according to your needs:
-
-    Recommended scripts:
-    - ``01_download.sh``
-    - ``02_unzip.sh``
-    - ``03_build.sh`` calling a function to process individual files like ``csv2parquet.R`` or ``csv2parquet.py``
-
-3. Replace stages in dvc.yaml with your new stages
-
-4. Build your brick
-
-```{bash}
-dvc repro # runs new stages
-```
-
-5. Push the data to biobricks.ai
-
-```{bash}
-dvc push -r s3.biobricks.ai 
-```
-
-6. Commit the brick
-
-```{bash}
-git add -A && git commit -m "some message"
-git push
-```
-
-7. Monitor the bricktools github action
