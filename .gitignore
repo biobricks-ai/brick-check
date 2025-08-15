@@ -7,3 +7,4 @@ notes.md
 /info
 reset.sh
 /fail
+__pycache__
