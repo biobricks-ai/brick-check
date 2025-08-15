@@ -23,7 +23,7 @@ mkdir -p info
 
 # Use GNU parallel to install bricks with a progress bar
 # shellcheck disable=SC2016
-grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | sed 's|^.*/||g' | \
+grep -v '^[[:space:]]*$' "$LIST_FILE" | grep -v '^[[:space:]]*#' | \
     parallel --bar --results info '
         brick="{}"
         biobricks install $brick

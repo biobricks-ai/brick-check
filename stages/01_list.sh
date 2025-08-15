@@ -21,7 +21,7 @@ echo "$repos" | parallel --bar '
     repo="{}"
     if [ -n "$repo" ]; then
         if gh api -X GET -H "Accept: application/vnd.github.v3+json" "repos/$repo/contents/dvc.lock" >/dev/null 2>&1; then
-            echo "$repo" >> "list/bricks.txt"
+            echo "$repo" | sed "s|^.*/||g" | >> "list/bricks.txt"
         fi
     fi
 '
