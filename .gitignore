@@ -2,7 +2,8 @@ logs
 /download
 /list
 /brick
+
 notes.md
 /info
-
 reset.sh
+/fail
