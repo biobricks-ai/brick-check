@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     parallel \
     build-essential \
+    rsyslog \
+    logrotate \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GitHub CLI
@@ -48,11 +50,48 @@ RUN uv sync --frozen
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p list info fail
+RUN mkdir -p list info fail logs
 
 # Set up git config (required for DVC)
 RUN git config --global user.name "Docker User" \
     && git config --global user.email "docker@example.com"
 
-# Default command
+# Create logging configuration
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Create timestamp for this run\n\
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")\n\
+LOG_DIR="/app/logs"\n\
+\n\
+# Ensure log directory exists\n\
+mkdir -p "$LOG_DIR"\n\
+\n\
+# Function to log with timestamp\n\
+log_with_timestamp() {\n\
+    while IFS= read -r line; do\n\
+        echo "$(date "+%Y-%m-%d %H:%M:%S") $line" | tee -a "$LOG_DIR/pipeline_${TIMESTAMP}.log"\n\
+    done\n\
+}\n\
+\n\
+# Function to log errors\n\
+log_error() {\n\
+    echo "$(date "+%Y-%m-%d %H:%M:%S") ERROR: $1" | tee -a "$LOG_DIR/pipeline_${TIMESTAMP}.log" "$LOG_DIR/errors.log"\n\
+}\n\
+\n\
+# Function to log stage completion\n\
+log_stage() {\n\
+    echo "$(date "+%Y-%m-%d %H:%M:%S") STAGE: $1" | tee -a "$LOG_DIR/pipeline_${TIMESTAMP}.log" "$LOG_DIR/stages.log"\n\
+}\n\
+\n\
+echo "Starting Brick Check Pipeline at $(date)" | log_with_timestamp\n\
+echo "Logging to: $LOG_DIR/pipeline_${TIMESTAMP}.log" | log_with_timestamp\n\
+\n\
+# Execute the command with logging\n\
+exec "$@" 2>&1 | log_with_timestamp\n\
+' > /app/entrypoint-with-logging.sh \
+    && chmod +x /app/entrypoint-with-logging.sh
+
+# Default command with logging wrapper
+ENTRYPOINT ["/app/entrypoint-with-logging.sh"]
 CMD ["uv", "run", "dvc", "repro"] 
