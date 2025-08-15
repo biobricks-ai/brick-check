@@ -31,7 +31,6 @@ services:
         gcp-project: "${GOOGLE_CLOUD_PROJECT:-brick-check-project}"
         gcp-log-cmd: "true"
         labels: "application=brick-check,environment=production,component=pipeline"
-        tag: "brick-check-pipeline"
     # Health check
     healthcheck:
       test: ["CMD", "test", "-f", "/app/list/bricks.txt", "||", "exit", "1"]
@@ -75,7 +74,6 @@ services:
         gcp-project: "${GOOGLE_CLOUD_PROJECT:-brick-check-project}"
         gcp-log-cmd: "true"
         labels: "application=brick-check,environment=development,component=dev-container"
-        tag: "brick-check-dev"
 
   # Enhanced Fluentd service with Google Cloud integration
   fluentd:
@@ -98,7 +96,6 @@ services:
         gcp-project: "${GOOGLE_CLOUD_PROJECT:-brick-check-project}"
         gcp-log-cmd: "true"
         labels: "application=brick-check,environment=production,component=logging"
-        tag: "fluentd"
 
   # Google Cloud Logging agent
   google-cloud-logging:
