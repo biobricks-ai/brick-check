@@ -22,3 +22,12 @@ stages:
       - list/bricks.txt
     outs:
       - info
+  verify:
+    cmd: uv run stages/03_verify.py
+    deps:
+      - stages/03_verify.py
+      - list/bricks.txt
+      - info
+    outs:
+      - fail/failures.txt:
+          cache: false
