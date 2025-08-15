@@ -422,19 +422,17 @@ setup_gcloud_logging() {
         log_success "Google Cloud Logging agent already installed"
     fi
     
-    # Configure the logging agent
-    sudo tee /etc/google-cloud-ops-agent/config.yaml > /dev/null << EOF
+    # Configure the logging agent with proper YAML formatting
+    sudo tee /etc/google-cloud-ops-agent/config.yaml > /dev/null << 'EOF'
 logging:
   receivers:
     brick_check_files:
       type: files
       include_paths:
-        - $LOG_DIR/pipeline_*.log
-        - $LOG_DIR/errors.log
-        - $LOG_DIR/stages.log
+        - /var/log/brick-check/pipeline_*.log
+        - /var/log/brick-check/errors.log
+        - /var/log/brick-check/stages.log
       exclude_paths: []
-    brick_check_syslog:
-      type: syslog
   processors:
     brick_check_parser:
       type: parse_regex
@@ -447,8 +445,6 @@ logging:
       brick_check_pipeline:
         receivers: [brick_check_files]
         processors: [brick_check_parser]
-      brick_check_syslog_pipeline:
-        receivers: [brick_check_syslog]
 
 metrics:
   receivers:
