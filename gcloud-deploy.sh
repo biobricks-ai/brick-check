@@ -393,10 +393,29 @@ setup_gcloud_logging() {
     if ! command -v google-fluentd &> /dev/null; then
         log_info "Installing Google Cloud Logging agent..."
         
-        # Add the Cloud Logging agent repository
-        curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
-        sudo bash add-google-cloud-ops-agent-repo.sh --also-install
-        rm add-google-cloud-ops-agent-repo.sh
+        # Fix for Ubuntu 24.10 and newer - use the official installation method
+        log_info "Adding Google Cloud repository and installing Ops Agent..."
+        
+        # Install required packages
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https ca-certificates gnupg lsb-release
+        
+        # Add Google Cloud public key
+        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg
+        
+        # Add Google Cloud repository for the correct Ubuntu version
+        UBUNTU_CODENAME=$(lsb_release -cs)
+        if [[ "$UBUNTU_CODENAME" == "plucky" ]]; then
+            # Use jammy (22.04) repository for plucky (24.10) compatibility
+            UBUNTU_CODENAME="jammy"
+            log_info "Using jammy repository for Ubuntu 24.10 compatibility"
+        fi
+        
+        echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt google-cloud-ops-agent-${UBUNTU_CODENAME}-all main" | sudo tee /etc/apt/sources.list.d/google-cloud-ops-agent.list
+        
+        # Update and install
+        sudo apt-get update
+        sudo apt-get install -y google-cloud-ops-agent
         
         log_success "Google Cloud Ops Agent installed"
     else
