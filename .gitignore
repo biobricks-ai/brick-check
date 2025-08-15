@@ -8,3 +8,5 @@ notes.md
 reset.sh
 /fail
 __pycache__
+
+.env
