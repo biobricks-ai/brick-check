@@ -15,10 +15,10 @@ import os
 import subprocess
 import sys
 import sqlite3
+import biobricks as bb
 from pathlib import Path
 from typing import List, Optional
 
-import pandas as pd
 import rdflib
 
 
@@ -48,23 +48,34 @@ def get_brick_assets(brick_name: str) -> tuple[bool, List[str]]:
     asset_files = []
     for line in output.split('\n'):
         line = line.strip()
-        if line and os.path.exists(line):
+        if line:
             asset_files.append(line)
     
     return len(asset_files) > 0, asset_files
 
 
 def verify_parquet_file(file_path: str) -> tuple[bool, str]:
-    """Verify a parquet file can be loaded and has data."""
+    """Verify a parquet file can be loaded and has data using PySpark for memory efficiency."""
     try:
-        df = pd.read_parquet(file_path)
-        row_count = len(df)
-        if row_count > 0:
-            return True, f"Parquet file has {row_count} rows"
+        from pyspark.sql import SparkSession
+        
+        # Create Spark session if not exists
+        spark = SparkSession.builder.appName("ParquetVerification").getOrCreate()
+        
+        # Read only first row to verify data exists (memory efficient)
+        df = spark.read.parquet(file_path).limit(1)
+        has_data = df.count() > 0
+        
+        if has_data:
+            # Get total count from metadata (doesn't load all data into memory)
+            total_df = spark.read.parquet(file_path)
+            total_count = total_df.count()
+            return True, f"Parquet file has {total_count} rows (verified with PySpark)"
         else:
             return False, "Parquet file is empty (0 rows)"
+            
     except Exception as e:
-        return False, f"Failed to load parquet file: {str(e)}"
+        return False, f"Failed to load parquet file with PySpark: {str(e)}"
 
 
 def verify_sqlite_file(file_path: str) -> tuple[bool, str]:
@@ -118,16 +129,18 @@ def verify_hdt_file(file_path: str) -> tuple[bool, str]:
         return False, f"Failed to load HDT file: {str(e)}"
 
 
-def verify_asset_file(file_path: str) -> tuple[bool, str]:
+def verify_asset_file(file_path: str, brick_name: str) -> tuple[bool, str]:
     """Verify an asset file based on its extension."""
     file_path_lower = file_path.lower()
+    brick_file = file_path.split(':')[0]
+    brick_path = getattr(bb.assets(brick_name), brick_file)
     
     if file_path_lower.endswith('.parquet'):
-        return verify_parquet_file(file_path)
+        return verify_parquet_file(brick_path)
     elif file_path_lower.endswith(('.sqlite', '.sqlite3', '.db')):
-        return verify_sqlite_file(file_path)
+        return verify_sqlite_file(brick_path)
     elif file_path_lower.endswith('.hdt'):
-        return verify_hdt_file(file_path)
+        return verify_hdt_file(brick_path)
     else:
         # For other file types, just check if file exists and has size > 0
         try:
@@ -161,7 +174,7 @@ def verify_brick(brick_name: str) -> bool:
     
     # Step 2: Verify each asset file can load
     for asset_file in asset_files:
-        success, message = verify_asset_file(asset_file)
+        success, message = verify_asset_file(asset_file, brick_name)
         if not success:
             record_failure(brick_name, f"Asset verification failed for {asset_file}: {message}")
             return False
@@ -179,15 +192,15 @@ def main():
     if not os.path.exists(bricks_file):
         print(f"Error: {bricks_file} not found", file=sys.stderr)
         sys.exit(1)
-    
+
     # Clear previous failures file if it exists
     if os.path.exists('fail/failures.txt'):
         os.remove('fail/failures.txt')
-    
+
     # Read brick names
     with open(bricks_file, 'r') as f:
         brick_names = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-    
+
     print(f"Starting verification of {len(brick_names)} bricks...")
     
     success_count = 0
