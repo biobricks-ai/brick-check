@@ -18,7 +18,7 @@ import sqlite3
 import biobricks as bb
 from pathlib import Path
 from typing import List, Optional
-
+import pyarrow.parquet as pq
 import rdflib
 
 
@@ -55,27 +55,19 @@ def get_brick_assets(brick_name: str) -> tuple[bool, List[str]]:
 
 
 def verify_parquet_file(file_path: str) -> tuple[bool, str]:
-    """Verify a parquet file can be loaded and has data using PySpark for memory efficiency."""
+    """Verify a parquet file can be loaded and has data."""
     try:
-        from pyspark.sql import SparkSession
-        
-        # Create Spark session if not exists
-        spark = SparkSession.builder.appName("ParquetVerification").getOrCreate()
-        
-        # Read only first row to verify data exists (memory efficient)
-        df = spark.read.parquet(file_path).limit(1)
-        has_data = df.count() > 0
-        
-        if has_data:
-            # Get total count from metadata (doesn't load all data into memory)
-            total_df = spark.read.parquet(file_path)
-            total_count = total_df.count()
-            return True, f"Parquet file has {total_count} rows (verified with PySpark)"
+        # Handle directory containing parquet files
+        row_count = 0
+        dataset = pq.ParquetDataset(file_path)
+        for fragment in dataset.fragments:
+            row_count += fragment.metadata.num_rows
+        if row_count > 0:
+            return True, f"Parquet file has {row_count} rows"
         else:
-            return False, "Parquet file is empty (0 rows)"
-            
+            return False, f"Parquet file is empty ({row_count} rows)"
     except Exception as e:
-        return False, f"Failed to load parquet file with PySpark: {str(e)}"
+        return False, f"Failed to load parquet file: {str(e)}"
 
 
 def verify_sqlite_file(file_path: str) -> tuple[bool, str]:
